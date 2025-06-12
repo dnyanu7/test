@@ -1,0 +1,46 @@
+name: Deploy Fullstack App to Ubuntu VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Ubuntu via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            echo "📁 Navigating to test directory..."
+            cd /home/ubuntu/test
+
+            echo "🔁 Pulling latest code from GitHub..."
+            git pull origin main
+
+            echo "🛠️ Building Spring Boot Backend..."
+            cd springboot-backend
+            ./mvnw clean install -DskipTests
+
+            echo "🛑 Killing any existing Spring Boot process..."
+            pkill -f 'java -jar' || true
+
+            echo "🚀 Starting Spring Boot Backend..."
+            nohup java -jar target/*.jar > backend.log 2>&1 &
+
+            echo "🌐 Building React Frontend..."
+            cd ../react-frontend
+            npm install
+            npm run build
+
+            echo "✅ Deployment completed!"
+
