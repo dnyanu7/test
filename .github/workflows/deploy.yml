@@ -28,7 +28,7 @@ jobs:
             git pull origin main
 
             echo "🛠️ Building Spring Boot Backend..."
-            cd springboot-backend
+            cd palmonas-reimagined-react
             ./mvnw clean install -DskipTests
 
             echo "🛑 Killing any existing Spring Boot process..."
@@ -38,7 +38,7 @@ jobs:
             nohup java -jar target/*.jar > backend.log 2>&1 &
 
             echo "🌐 Building React Frontend..."
-            cd ../react-frontend
+            cd ../navyaraga-ui
             npm install
             npm run build
 
